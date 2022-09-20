@@ -497,4 +497,11 @@ describe("Test ConfigurableCorePool", function () {
       console.log("liquidity: " + testPool.getCorePool().liquidity.toString());
     });
   });
+
+  describe("Test eventDB queries", function() {
+    it("can get the first liquidity event", async function () {
+      let event: LiquidityEvent = await eventDB.getFirstLiquidityEvent();
+      expect(event.blockNumber == 12370624).to.be.true;
+    });
+  });
 });

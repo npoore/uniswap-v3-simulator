@@ -195,6 +195,18 @@ export class EventDBManager {
     );
   }
 
+  getFirstLiquidityEvent(): Promise<LiquidityEvent> {
+    return this.knex.transaction((trx) => 
+      this.getBuilderContext("liquidity_events", trx)
+      .orderBy('date',"asc")
+      .first().then((record) =>
+        Promise.resolve(
+          this.deserializeLiquidityEvent(record)
+        )
+      )   
+    );
+  }
+
   getLiquidityEventsByDate(
     type: number,
     startDate: string,
