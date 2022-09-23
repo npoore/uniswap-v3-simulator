@@ -1,0 +1,10 @@
+import { BigNumber as BN } from "ethers";
+import JSBI from "jsbi";
+export declare function sum(bnArr: BN[]): BN;
+export declare function mul10pow(bn: BN, n: number): BN;
+export declare function div10pow(bn: BN, n: number): BN;
+export declare function get10pow(n: number): BN;
+export declare function isPositive(bn: BN): boolean;
+export declare function toBN(number: any): BN;
+export declare function toJSBI(number: any): JSBI;
+export declare function convertTokenStrFromDecimal(bnStr: string, decimals: number): string;

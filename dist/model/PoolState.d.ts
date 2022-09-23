@@ -1,0 +1,33 @@
+import JSBI from "jsbi";
+import { PoolConfig } from "./PoolConfig";
+import { Transition } from "../model/Transition";
+import { Snapshot } from "../entity/Snapshot";
+import { PositionManager } from "../manager/PositionManager";
+import { TickManager } from "../manager/TickManager";
+import { Record } from "../entity/Record";
+import { Visitable } from "../interface/Visitable";
+import { SimulatorVisitor } from "../interface/SimulatorVisitor";
+import { CorePool } from "../core/CorePool";
+import { Transition as TransitionView } from "../interface/Transition";
+export declare class PoolState implements Visitable {
+    readonly id: string;
+    readonly baseSnapshot: Snapshot | undefined;
+    private _snapshot;
+    readonly poolConfig: PoolConfig;
+    readonly transitionSource: Transition | undefined;
+    readonly transitionTargets: Transition[];
+    readonly timestamp: Date;
+    constructor(poolConfig?: PoolConfig, baseSnapshot?: Snapshot, fromTransition?: Transition);
+    get snapshot(): Snapshot | undefined;
+    static from(baseSnapshot: Snapshot): PoolState;
+    takeSnapshot(description: string, token0Balance: JSBI, token1Balance: JSBI, sqrtPriceX96: JSBI, liquidity: JSBI, tickCurrent: number, feeGrowthGlobal0X128: JSBI, feeGrowthGlobal1X128: JSBI, tickManager: TickManager, positionManager: PositionManager): void;
+    accept(visitor: SimulatorVisitor, callback?: (poolState: PoolState, returnValue: any) => void): Promise<string>;
+    recoverCorePool(takeSnapshot?: boolean): CorePool;
+    clearSnapshot(cachingOnly?: boolean): void;
+    hasSnapshot(): boolean;
+    hasBaseSnapshot(): boolean;
+    addTransitionTarget(record: Record): Transition;
+    getTransitionSource(): TransitionView | undefined;
+    getTransitionTargets(): TransitionView[];
+    fork(): PoolState;
+}

@@ -1,0 +1,20 @@
+import JSBI from "jsbi";
+import { FeeAmount } from "./FeeAmount";
+export declare const UNISWAP_V3_SUBGRAPH_ENDPOINT = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
+export declare const NEGATIVE_ONE: JSBI;
+export declare const ZERO: JSBI;
+export declare const ONE: JSBI;
+export declare const TWO: JSBI;
+export declare const MaxUint128: JSBI;
+export declare const MaxUint160: JSBI;
+export declare const MaxUint256: JSBI;
+export declare const MaxInt128: JSBI;
+export declare const MinInt128: JSBI;
+export declare const Q32: JSBI;
+export declare const Q96: JSBI;
+export declare const Q128: JSBI;
+export declare const Q192: JSBI;
+export declare const MAX_FEE: JSBI;
+export declare const TICK_SPACINGS: {
+    [amount in FeeAmount]: number;
+};
