@@ -55,6 +55,36 @@ type PoolConfigRecord = {
   timestamp: string;
 };
 
+export type SwapEventInsertRecord = {
+  msg_sender: string;
+  recipient: string;
+  amount0: string;
+  amount1: string;
+  amount_specified: string | undefined;
+  sqrt_price_x96: string;
+  liquidity: string;
+  tick: number;
+  block_number: number;
+  transaction_index: number;
+  log_index: number;
+  date: string;
+};
+
+export type LiquidityEventInsertRecord = {
+  type: number;
+  msg_sender: string;
+  recipient: string;
+  liquidity: string;
+  amount0: string;
+  amount1: string;
+  tick_lower: number;
+  tick_upper: number;
+  block_number: number;
+  transaction_index: number;
+  log_index: number;
+  date: string;
+}
+
 export class EventDBManager {
   private knex: Knex;
 
@@ -119,6 +149,7 @@ export class EventDBManager {
                 t.text("date");
                 t.index(["type", "block_number"]);
                 t.index(["type", "date"]);
+                t.unique(["block_number","log_index"]);
               }
             )
           : Promise.resolve()
@@ -143,6 +174,7 @@ export class EventDBManager {
                 t.text("date");
                 t.index(["block_number"]);
                 t.index(["date"]);
+                t.unique(["block_number","log_index"]);
               }
             )
           : Promise.resolve()
@@ -296,6 +328,32 @@ export class EventDBManager {
     );
   }
 
+  getLastLiqudityEventBlock(): Promise<number> {
+    return this.knex.transaction((trx) => 
+      this.getBuilderContext("liquidity_events", trx)
+      .select('block_number')
+      .orderBy('date',"desc")
+      .first().then((r) =>
+        Promise.resolve(
+          r.block_number
+        )
+      )   
+    );
+  }
+
+  getLastSwapEventBlock(): Promise<number> {
+    return this.knex.transaction((trx) => 
+      this.getBuilderContext("swap_events", trx)
+      .select('block_number')
+      .orderBy('date','desc')
+      .first().then((r) =>
+        Promise.resolve(
+          r.block_number
+        )
+      )
+    );
+  }
+
   addPoolConfig(poolConfig: PoolConfig) {
     return this.knex.transaction((trx) =>
       this.insertPoolConfig(poolConfig, trx).then((ids) =>
@@ -370,9 +428,17 @@ export class EventDBManager {
             log_index,
             date: DateConverter.formatDate(date, DATE_FORMAT),
           },
-        ])
+        ]).onConflict().ignore()
       )
       .then((ids) => Promise.resolve(ids[0]));
+  }
+
+  insertLiquidityEvents(
+    events: LiquidityEventInsertRecord[]
+  ): Promise<number> {
+    return this.knex.transaction((trx) =>
+      this.getBuilderContext("liquidity_events",trx).insert(events).onConflict().ignore()
+    ).then((ids) => Promise.resolve(ids[0]));
   }
 
   insertSwapEvent(
@@ -404,8 +470,16 @@ export class EventDBManager {
           log_index,
           date: DateConverter.formatDate(date, DATE_FORMAT),
         },
-      ])
-    );
+      ]).onConflict().ignore()
+    ).then((ids) => Promise.resolve(ids[0]))
+  }
+
+  insertSwapEvents(
+    events: SwapEventInsertRecord[]
+  ): Promise<number> {
+    return this.knex.transaction((trx) =>
+      this.getBuilderContext("swap_events",trx).insert(events).onConflict().ignore()
+    ).then((ids) => Promise.resolve(ids[0]));
   }
 
   close(): Promise<void> {
